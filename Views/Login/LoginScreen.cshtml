@@ -1,0 +1,105 @@
+﻿@model OrganisationWebsite.Models.LoginDataModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>LoginScreen</title>
+    <script>
+        function ValidEntryFields() {
+            var usernameText = $("#username-text");
+            var passwordText = $("#password-text");
+            if (usernameText.val() == "") {
+                $("#username-error-text").html("This field is required.");
+            }
+            if (passwordText.val() == "") {
+                $("#password-error-text").html("This field is required.");
+            }
+            if (passwordText.val() != "" && usernameText.val() != "") {
+                $("#login-form").submit();
+            }
+        }
+
+        function WipeErrorMessage(id) {
+            var errorMessage = $(id);
+            errorMessage.html("");
+
+        }
+
+        function ShowSignUp() {
+            $("#log-in").css("display", "none");
+            $("#sign-up").css("display", "initial");
+        }
+
+        function ShowLogIn() {
+            $("#log-in").css("display", "initial");
+            $("#sign-up").css("display", "none");
+        }
+
+        var signUpLink = $("#sign-up-link");
+        var logInLink = $("#log-in-link");
+
+        signUpLink.click(ShowSignUp());
+        signUpLink.click(ShowLogIn());
+    </script>
+</head>
+<body>
+    <div id="log-in">
+        <h1>Log In</h1>
+            @using (Html.BeginForm("LoginScreen", "Login", FormMethod.Post, new { @id = "login-form" }))
+            {
+                <table>
+                    <tr>
+                        <td>User Name</td>
+                        <td>
+                            @Html.TextBoxFor(value => Model.UserName, new { @id="username-text", @onfocus= "WipeErrorMessage('#username-error-text')",
+                                                                            @pattern = @"[A-Za-z_*\d]{1,20}", @required = "required",
+                                                                            @title = "Usernames can only contain letters, digits and underscores and cannot exceed 20 characters" })
+                        </td>
+                        
+                        <td id="username-error-text" style="color:red;">
+                            @Model.UserNameError
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Password</td>
+                        <td>
+                            @Html.PasswordFor(value => Model.Password, new { @id="password-text", @onfocus="WipeErrorMessage('#password-error-text')",
+                                                                             @pattern = @"[A-Za-z_*\d]{1,20}", @required = "required",
+                                                                             @title = "Passwords can only contain letters, digits and underscores and cannot exceed 20 characters" })
+                        </td>
+                        <td id="password-error-text"  style="color:red;">
+                            @Model.PasswordError
+                        </td>
+                    </tr>
+                </table>
+                <button type="submit">Login</button>
+            }
+
+        
+        <br />
+        <p id="sign-up-link" style="color:blue; text-decoration:underline; display:inline-block" onclick="ShowSignUp()">Need an account? Sign up here.</p>
+    </div>
+    
+    <div id="sign-up" style="display:none;">
+        <h1>Make New Account</h1>
+        @using (Html.BeginForm("SignUp", "Login", FormMethod.Post, new { @id = "sign-up-form" })) {
+            <table>
+                <tr>
+                    <td>Enter a new Username:</td>
+                    <td>@Html.TextBoxFor(value => Model.NewUserName, new { @id="new-username", @pattern=@"[A-Za-z_*\d]{1,20}", @required="required", @title="Usernames can only contain letters, digits and underscores and cannot exceed 20 characters"})</td>
+                </tr>
+                <tr>
+                    <td>Enter a new Password:</td>
+                    <td>@Html.PasswordFor(value => Model.NewPassword, new { @id="new-password", @pattern = @"[A-Za-z_*\d*]{1,20}", @required="required", @title = "Passwords can only contain letters, digits and underscores and cannot exceed 20 characters" })</td>
+                </tr>
+                <tr>
+                    <td><button type="submit">Make Account</button></td>
+                </tr>
+            </table>
+            <br />
+            <p id="log-in-link" style="color:blue; text-decoration:underline; display:inline-block" onclick="ShowLogIn()">Already have an account? Log in here.</p>
+        }
+    </div>
+</body>
+</html>

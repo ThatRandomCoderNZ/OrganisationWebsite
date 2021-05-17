@@ -1,0 +1,294 @@
+﻿@model OrganisationWebsite.Models.TaskViewModel
+
+<script>
+    /*
+    function showLeftSide() {
+        alert("Something");
+        var number = parseInt($("#testingsomethingnew").val());
+        number += 1;
+        $("#testingsomethingnew").val(number);
+        $("#to-show").css("visibility", "visible");
+        console.log($("#testingsomethingnew").val());
+    }
+    function printTestList() {
+        var testLists = document.getElementsByClassName("testList");
+        for (var i = 0; i < testLists.length; i++) {
+            console.log(testLists[i]);
+        }
+        console.log(testLists.length);
+        $("#test-paragraph").html("Changed the text");
+        console.log($("#test-paragraph").html());
+
+    }
+    */
+
+    function showTaskDetails(key) {
+        $("#task-progress-made").css("visibility", "hidden");
+        $("#details-goal").html($("#goal-" + key).val());
+        $("#details-notes").val($("#notes-" + key).val());
+        $("#details-information").val($("#history-" + key).val());
+        $("#details-name").html($("#name-" + key).val());
+        
+        $("#details-progress").val($("#progress-" + key).val());
+        var total_duration = parseInt($("#duration-" + key).val(), 10);
+        var status = parseInt($("#details-progress").val(), 10);
+
+        var time_left = Math.round((1 - (status / 100)) * total_duration);
+
+        $("#details-duration").html(time_left);
+        $("#form-id").val(key);
+        $("#task-details").css("visibility", "visible");
+    }
+
+    function hideTaskDetails() {
+        $("#task-details").css("visibility", "hidden");
+    }
+
+    function showProgressInputs() {
+        $("#task-progress-made").css("visibility", "visible");
+    }
+
+    function submitDetailsForm() {
+        $("#form-name").val($("#details-name").html());
+        $("#form-notes").val($("#details-notes").val());
+        $("#form-history").val($("#details-notes-input").val());
+
+        var status = parseInt($("#details-progress").val(), 10);
+        var total_duration = parseInt($("#details-duration").html(), 10);
+        var progress_duration = parseInt($("#details-duration-input").val());
+        var percentage_made = Math.round((progress_duration / total_duration) * 100);
+        var new_status = status + percentage_made;
+
+        if (new_status > 100) {
+            new_status = 100;
+        }
+        console.log(typeof new_status);
+        if (isNaN(new_status)) {
+            new_status = parseInt($("#details-progress").val(), 10);
+        }
+        $("#form-duration").val(new_status.toString());
+        
+        $("#details-form").submit();
+       
+
+    }
+
+    function showPopUp() {
+        $("#test-popup").css("display", "initial");
+    }
+
+    function hidePopUp() {
+        $("#test-popup").css("display", "none");
+    }
+
+    function passGoalID() {
+        $("#new-task-goal").val($("#new-task-goal-select").val());
+    }
+
+    function deleteTask() {
+        $("#form-delete").val("true");
+        $("#details-form").submit();
+    }
+
+    
+</script>
+
+<style>
+    #task-details{
+        display:inline-block;
+        width:400px;
+    }
+
+    #task-summary{
+        display:inline-block;
+        width:300px;
+    }
+
+    .task-block{
+        width:280px;
+        height:80px;
+
+        
+    }
+
+    .task-duration{
+        display:inline-block; 
+        margin: 10px 0 10px 10px;
+        width:70px;
+        height:60px;
+        text-align: center;
+        background-color:#E2E4E6;
+    }
+
+    .task-name{
+        display:inline-block;
+        margin: 10px 10px 10px 0px;
+        width:190px;
+        height:60px;
+        text-align: center;
+        background-color:#E2E4E6;
+    }
+
+    #test-popup{
+        width:500px; 
+        height:500px; 
+        background-color: #dbdbdb; 
+        display:none; 
+        position:absolute; 
+        top:200px;
+    }
+
+    .text-area-information{
+        width:100%; 
+        height:200px; 
+        resize:none;
+    }
+
+    .curved-box{
+        border-radius: 14px; 
+    }
+
+    .task-block-container{
+        display: block;
+        margin: 10px 0;
+    }
+
+    .text-vertical-align{
+        display: inline-block;
+        vertical-align: middle;
+        position:absolute;
+        top: 10px;
+        bottom: 10px;
+        background-color: #FFFFFF;
+        line-height: 60px;
+    }
+
+    #name-background{
+        
+        width: 70%;
+        vertical-align: middle;
+        background-color: #FFFFFF;
+        height: 40px;
+        top:10px;
+        left: 15%;
+        
+    }
+
+</style>
+
+<div id="test-popup">
+    <span style="float:right; background-color:red; color:white;" onclick="hidePopUp()"><strong>X</strong></span>
+    @using(Html.BeginForm("IndexAddTask", "Home", FormMethod.Post, new { @id = "new-task-form" }))
+    {
+        <span>Task Name:</span>@Html.TextBoxFor(value => Model.NewTaskFormDetails.Name, new { @required="required"})
+        <br />
+        <span>Task Notes:</span>
+        @Html.TextAreaFor(value => Model.NewTaskFormDetails.Notes)
+        <br />
+        <span>Task Duration:</span>@Html.TextBoxFor(value => Model.NewTaskFormDetails.Duration, new { @required = "required", @type="number",
+                                                                                                      @step ="5", @min="5",
+                                                                                                      @title ="Use only numbers in setting the duration of this task." })
+        <br />
+        <span>Task Goal:</span>
+        <select id="new-task-goal-select">
+            <option value="">No Goal</option>
+            @foreach(string key in Model.GoalBlocks.Keys)
+            {
+                <option value="@Model.GoalBlocks[key].GoalID">@Model.GoalBlocks[key].GoalName</option>
+            }
+        </select>
+        @Html.HiddenFor(value => Model.NewTaskFormDetails.GoalID, new { @id="new-task-goal"})
+     
+        <button id="new-task-submit" onclick="passGoalID()">Submit</button>
+
+    }
+</div>
+<table id="main-task-display">
+    <tr>
+        <td id="task-details" style="visibility:hidden;">
+            <button onclick="hideTaskDetails()" style="background-color:red; color:white; float:right;">x</button>
+            <button onclick="submitDetailsForm()">Save</button>
+            <button onclick="deleteTask()">Delete</button>
+            @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @id = "details-form" }))
+            {
+                <h1 id="details-name"></h1>
+                <span>Goal:</span><h3 id="details-goal"></h3>
+                <h3>Additional Notes</h3>
+
+                <textarea id="details-notes" class="text-area-information"></textarea>
+                <h3>Task History</h3>
+                <textarea id="details-information" class="text-area-information" readonly="readonly" ;></textarea>
+                <br />
+                <div>
+                    <span id="details-duration"></span> Minutes Left
+                </div>
+                <progress id="details-progress" value="0" max="100" style="width:100%;"></progress>
+                <br />
+                    
+                <div id="task-progress-made" style="visibility:hidden;">
+                    Time spent on task:<input id="details-duration-input" />
+                    <br />
+                    Notes about task:<input id="details-notes-input" />
+                </div>
+
+                @Html.HiddenFor(value => Model.FormDetails.TaskID, new { @id = "form-id" })
+                @Html.HiddenFor(value => Model.FormDetails.TaskName, new { @id = "form-name" })
+                @Html.HiddenFor(value => Model.FormDetails.TaskNotes, new { @id = "form-notes" })
+                @Html.HiddenFor(value => Model.FormDetails.HistoryDetails, new { @id = "form-history" })
+                @Html.HiddenFor(value => Model.FormDetails.TaskDuration, new { @id = "form-duration" })
+                @Html.HiddenFor(value => Model.FormDetails.DeleteTask, new { @id = "form-delete" })
+            }
+            <button id="progress-made" style="background-color: #a7eaff;" onclick="showProgressInputs()">Progress</button>
+            <button id="completed" style="background-color:green;">Completed</button>
+        </td>
+        <td id="task-summary">
+            <div><a class="link-bock">Tasks</a></div>
+            <!--<div>@Html.ActionLink("string", "Index", "Goal", null, new { @class = "link-block"})</div>-->
+            
+            <table>
+                @foreach (string key in Model.TaskBlocks.Keys)
+                {
+                    <tr  class="task-block-container">
+                        <td id="taskblock-@key" onclick="showTaskDetails('@key')" class="curved-box" style="background-color:@Model.TaskBlocks[key].GoalColour;">
+                            <table>
+                                <tr class="task-block curved-box">
+                                    <td class="task-duration">
+                                        <span class="text-vertical-align">@Model.TaskBlocks[key].TaskDuration</span>
+                                    </td>
+                                        <td class="task-name">
+                                            <div id="name-background">
+                                            <span class="text-vertical-align">@Model.TaskBlocks[key].TaskName</span>
+                                            </div>
+                                        </td>
+                                </tr>
+                            </table>
+                            @Html.HiddenFor(value => Model.TaskBlocks[key].TaskName, new { @id = "name-" + key })
+                            @Html.HiddenFor(value => Model.TaskBlocks[key].TaskDuration, new { @id = "duration-" + key })
+                            @Html.HiddenFor(value => Model.TaskBlocks[key].TaskNotes, new { @id = "notes-" + key })
+                            @Html.HiddenFor(value => Model.TaskBlocks[key].TaskStatus, new { @id = "progress-" + key })
+                            @Html.HiddenFor(value => Model.TaskBlocks[key].TaskHistoryString, new { @id = "history-" + key })
+                            
+                            @if (Model.TaskBlocks[key].TaskGoalID != null && Model.TaskBlocks[key].TaskGoalID != "")
+                            {
+                                @Html.HiddenFor(value => Model.GoalBlocks[Model.TaskBlocks[key].TaskGoalID].GoalName, new { @id = "goal-" + key })
+                            }
+                            else{ 
+                                <input type="hidden" id="goal-@key" value="None"/>
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        </td>
+        <td>
+            <button onclick="showPopUp()"><strong>+</strong> Add New Task</button>
+        </td>
+    </tr>
+    
+
+    
+</table>
+
+
+
+
