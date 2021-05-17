@@ -20,7 +20,7 @@ namespace OrganisationWebsite.DatabaseRepository
                 foreach (string column in columns) {
                     extractedData[column] = new List<string>();
                 }
-                connection = new MySqlConnection("server=nimbus.rangitoto.school.nz; database=student93061; port=3307; Uid=93061; pwd=93061");
+                connection = new MySqlConnection("");
                 command = connection.CreateCommand();
                 command.CommandText = query;
                 if (parameters != null)
